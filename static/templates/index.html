@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Gemini Chat - AI Conversations{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <!-- Sidebar with conversation history (only visible for logged in users) -->
+    {% if current_user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Conversations</h2>
+            <button id="new-chat-btn" class="new-chat-btn">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        <div class="conversations-list">
+            {% if conversations %}
+                {% for conv in conversations %}
+                    <div class="conversation-item {% if conversation and conversation.id == conv.id %}active{% endif %}" 
+                         data-id="{{ conv.id }}">
+                        <a href="{{ url_for('chat', conversation_id=conv.id) }}">
+                            <i class="fas fa-comment-dots"></i>
+                            <span class="conversation-title">{{ conv.title }}</span>
+                        </a>
+                        <button class="delete-conversation" data-id="{{ conv.id }}" title="Delete conversation">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-conversations">
+                    <p>No conversations yet</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Premium features info -->
+        <div class="premium-features-info">
+            {% if current_user.is_premium %}
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> Premium
+                </div>
+                <ul class="premium-features-list">
+                    <li><i class="fas fa-check"></i> Enhanced responses</li>
+                    <li><i class="fas fa-check"></i> Priority processing</li>
+                    <li><i class="fas fa-check"></i> Longer context window</li>
+                </ul>
+            {% else %}
+                <div class="upgrade-prompt">
+                    <p><i class="fas fa-star"></i> Upgrade to Premium for enhanced features!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main chat area -->
+    <div class="chat-main">
+        {% if not current_user.is_authenticated %}
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h1>Bienvenido a Gemini Chat</h1>
+                <p>Experimenta el poder del modelo de IA Gemini 2.5 Pro de Google</p>
+                <div class="welcome-buttons">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">Iniciar Sesión / Registrarse</a>
+                </div>
+                <div class="welcome-features">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>Advanced AI</h3>
+                        <p>Powered by Google's state-of-the-art Gemini 2.5 Pro model</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3>Premium Features</h3>
+                        <p>Enhanced responses and personalized settings for premium users</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3>Conversation History</h3>
+                        <p>Save and revisit your conversations at any time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="chat-messages" id="chat-messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %}">
+                        <div class="message-avatar">
+                            {% if message.is_user %}
+                                <i class="fas fa-user"></i>
+                            {% else %}
+                                <i class="fas fa-robot"></i>
+                            {% endif %}
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">{{ message.content|safe }}</div>
+                            <div class="message-time">{{ message.timestamp.strftime('%H:%M') }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-chat">
+                    <div class="empty-chat-content">
+                        <i class="fas fa-comment-dots empty-chat-icon"></i>
+                        <h2>Start a new conversation</h2>
+                        <p>Type a message below to begin chatting with Gemini AI</p>
+                        
+                        {% if current_user.is_premium %}
+                        <div class="premium-tips">
+                            <h3><i class="fas fa-crown"></i> Premium Tips</h3>
+                            <ul>
+                                <li>Ask complex questions for detailed analysis</li>
+                                <li>Try creative writing prompts for longer output</li>
+                                <li>Enjoy enhanced model parameters for better quality</li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div id="typing-indicator" class="typing-indicator hidden">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <form id="message-form" data-conversation-id="{{ conversation.id if conversation else '' }}">
+                <textarea id="message-input" placeholder="Type your message here..." rows="1"></textarea>
+                <button type="submit" id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+            <div class="chat-input-footer">
+                <p>
+                    <i class="fas fa-info-circle"></i> 
+                    {% if current_user.is_premium %}
+                        Premium mode enabled: Enhanced responses with larger context window
+                    {% else %}
+                        Free mode: Upgrade to premium for enhanced features
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

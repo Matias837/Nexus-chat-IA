@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Gemini Chat{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Admin Panel</h1>
+        <p>Manage users and premium access</p>
+    </div>
+    
+    <div class="admin-content">
+        <div class="admin-sidebar">
+            <h2>Admin Tools</h2>
+            <ul class="admin-menu">
+                <li class="active"><a href="#users">User Management</a></li>
+                <li><a href="{{ url_for('index') }}">Back to Chat</a></li>
+            </ul>
+        </div>
+        
+        <div class="admin-main">
+            <div class="admin-section" id="users">
+                <h2>User Management</h2>
+                
+                <div class="admin-form-container">
+                    <h3>Update User Status</h3>
+                    <form method="POST" action="{{ url_for('admin') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.username.id }}">Username</label>
+                            {{ form.username(class="form-control", placeholder="Enter username") }}
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            {{ form.is_premium(class="form-check-input") }}
+                            <label for="{{ form.is_premium.id }}" class="form-check-label">Premium User</label>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            {{ form.is_admin(class="form-check-input") }}
+                            <label for="{{ form.is_admin.id }}" class="form-check-label">Admin User</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="admin-table-container">
+                    <h3>User List</h3>
+                    {% if users %}
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Premium</th>
+                                    <th>Admin</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.id }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            {% if user.is_premium %}
+                                                <span class="status-badge premium"><i class="fas fa-check"></i></span>
+                                            {% else %}
+                                                <span class="status-badge free"><i class="fas fa-times"></i></span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.is_admin %}
+                                                <span class="status-badge admin"><i class="fas fa-check"></i></span>
+                                            {% else %}
+                                                <span class="status-badge not-admin"><i class="fas fa-times"></i></span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No users found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

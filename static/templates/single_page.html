@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Chat - IA Conversaciones</title>
+    
+    <!-- Font: Inter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            /* Light mode colors */
+            --background-color: #f8f9fa;
+            --secondary-background: #ffffff;
+            --text-color: #333333;
+            --secondary-text-color: #666666;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #6b7280;
+            --border-color: #e5e7eb;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            
+            /* Chat specific */
+            --user-message-bg: #e9f0ff;
+            --ai-message-bg: #f3f4f6;
+            --user-message-text: #1e3a8a;
+            --ai-message-text: #111827;
+            
+            /* Dimensions */
+            --border-radius: 8px;
+            --sidebar-width: 300px;
+            --header-height: 60px;
+            --footer-height: 60px;
+            
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            
+            /* Animation */
+            --transition-speed: 0.3s;
+        }
+
+        /* Dark mode colors */
+        .dark-mode {
+            --background-color: #121212;
+            --secondary-background: #1e1e1e;
+            --text-color: #f3f4f6;
+            --secondary-text-color: #a1a1aa;
+            --primary-color: #6366f1;
+            --primary-hover: #818cf8;
+            --secondary-color: #9ca3af;
+            --border-color: #2d2d2d;
+            --user-message-bg: #3730a3;
+            --ai-message-bg: #27272a;
+            --user-message-text: #e0e7ff;
+            --ai-message-text: #e5e7eb;
+        }
+
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color var(--transition-speed);
+        }
+
+        a:hover {
+            color: var(--primary-hover);
+        }
+
+        button {
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        /* ===== LAYOUT ===== */
+        header {
+            height: var(--header-height);
+            background-color: var(--secondary-background);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav ul li a {
+            color: var(--secondary-text-color);
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        nav ul li a:hover {
+            background-color: var(--border-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--secondary-text-color);
+        }
+
+        .premium-badge {
+            color: gold;
+            margin-left: 5px;
+        }
+
+        #theme-toggle {
+            background: none;
+            border: none;
+            color: var(--secondary-text-color);
+            font-size: 1rem;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        footer {
+            height: var(--footer-height);
+            background-color: var(--secondary-background);
+            border-top: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            color: var(--secondary-text-color);
+            font-size: 0.875rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-link {
+            color: var(--secondary-text-color);
+        }
+
+        /* ===== FORM CONTROLS ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--secondary-background);
+            color: var(--text-color);
+            transition: border-color var(--transition-speed), background-color var(--transition-speed);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-check-input {
+            width: 16px;
+            height: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .form-errors {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        /* ===== FLASH MESSAGES ===== */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flash.success {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .flash.danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .flash.warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+        }
+
+        .flash.info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+            border: 1px solid var(--info-color);
+        }
+
+        .close-flash {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 0.875rem;
+        }
+
+        /* ===== AUTH CONTAINER ===== */
+        .auth-container {
+            display: flex;
+            max-width: 1100px;
+            margin: 0 auto;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: var(--secondary-background);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-box {
+            flex: 1;
+            padding: 40px;
+            max-width: 500px;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .auth-subtitle {
+            margin-bottom: 30px;
+            color: var(--secondary-text-color);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            color: var(--secondary-text-color);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .auth-tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .auth-tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .auth-form {
+            transition: opacity var(--transition-speed), transform var(--transition-speed);
+        }
+
+        .auth-form.hidden {
+            display: none;
+        }
+
+        .auth-features {
+            flex: 1;
+            background-color: rgba(79, 70, 229, 0.03);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .auth-features h2 {
+            margin-bottom: 30px;
+            font-size: 1.75rem;
+            color: var(--primary-color);
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background-color: rgba(79, 70, 229, 0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .feature-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .feature-text h3 {
+            margin-bottom: 5px;
+        }
+
+        /* ===== CHAT CONTAINER ===== */
+        .chat-container {
+            display: flex;
+            height: calc(100vh - var(--header-height) - var(--footer-height) - 40px);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: var(--secondary-background);
+            border: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: width var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--secondary-text-color);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .new-chat-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+        }
+
+        .new-chat-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .conversation-item:hover {
+            background-color: var(--border-color);
+        }
+
+        .conversation-item.active {
+            background-color: rgba(79, 70, 229, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .conversation-item a {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+        }
+
+        .conversation-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .delete-conversation {
+            background: none;
+            border: none;
+            color: var(--secondary-text-color);
+            font-size: 0.875rem;
+            opacity: 0.5;
+            transition: opacity var(--transition-speed);
+        }
+
+        .delete-conversation:hover {
+            opacity: 1;
+            color: var(--danger-color);
+        }
+
+        .no-conversations {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            color: var(--secondary-text-color);
+        }
+
+        .premium-features-info {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .premium-features-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .premium-features-list li {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-prompt {
+            text-align: center;
+            color: var(--secondary-text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .upgrade-prompt i {
+            color: gold;
+        }
+        
+        .upgrade-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .upgrade-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .pending-subscription {
+            background-color: var(--secondary-background);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .premium-badge.pending {
+            background-color: var(--warning-color);
+        }
+        
+        .payment-details {
+            background-color: rgba(0,0,0,0.03);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .payment-details h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .payment-details ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 15px 0;
+        }
+        
+        .payment-details li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .payment-note {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            font-style: italic;
+            margin: 5px 0 0 0;
+        }
+        
+        .btn-icon {
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 3px;
+            border-radius: 3px;
+        }
+        
+        .btn-icon:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        /* Main Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .user-message .message-avatar {
+            background-color: var(--primary-color);
+        }
+
+        .ai-message .message-avatar {
+            background-color: var(--secondary-color);
+        }
+
+        .message-content {
+            background-color: var(--user-message-bg);
+            color: var(--user-message-text);
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            position: relative;
+        }
+
+        .ai-message .message-content {
+            background-color: var(--ai-message-bg);
+            color: var(--ai-message-text);
+        }
+
+        .message-text {
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+            align-self: flex-start;
+            opacity: 0.7;
+        }
+
+        .typing-indicator.hidden {
+            display: none;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--secondary-text-color);
+            border-radius: 50%;
+            animation: typing-animation 1.5s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-animation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        #message-form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            resize: none;
+            font-family: var(--font-family);
+            transition: height 0.2s ease, border-color var(--transition-speed);
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        #send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+
+        #send-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .chat-input-footer {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--secondary-text-color);
+            text-align: center;
+        }
+
+        .empty-chat {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--secondary-text-color);
+        }
+
+        .empty-chat-content {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .empty-chat-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .premium-tips {
+            margin-top: 30px;
+            background-color: rgba(79, 70, 229, 0.05);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            text-align: left;
+        }
+
+        .premium-tips h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .premium-tips i {
+            color: gold;
+        }
+
+        .premium-tips ul {
+            list-style: none;
+        }
+
+        .premium-tips li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .premium-tips li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+
+        /* Welcome Screen */
+        .welcome-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .welcome-content {
+            max-width: 800px;
+        }
+
+        .welcome-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .welcome-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--secondary-text-color);
+        }
+
+        .welcome-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .welcome-features {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .feature {
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 992px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .sidebar.collapsed {
+                display: none;
+            }
+            
+            .chat-main {
+                height: calc(100vh - var(--header-height) - var(--footer-height) - 120px);
+            }
+            
+            .auth-container {
+                flex-direction: column;
+            }
+            
+            .auth-box {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .feature {
+                max-width: 100%;
+            }
+            
+            .message {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                padding: 0 10px;
+            }
+            
+            .logo a span {
+                display: none;
+            }
+            
+            nav ul {
+                gap: 10px;
+            }
+            
+            main {
+                padding: 10px;
+            }
+            
+            .chat-messages {
+                padding: 10px;
+            }
+            
+            .welcome-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="#" id="home-link">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="var(--primary-color)" />
+                        <path d="M30 40L50 60L70 40" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M30 60L50 80L70 60" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Gemini Chat</span>
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li id="user-nav-section" style="display: none;">
+                        <span class="user-info">
+                            <i class="fas fa-user"></i> <span id="username-display"></span>
+                            <span id="premium-badge" class="premium-badge" style="display: none;">
+                                <i class="fas fa-crown"></i>
+                            </span>
+                        </span>
+                    </li>
+                    <li id="admin-nav-link" style="display: none;">
+                        <a id="admin-link">Admin</a>
+                    </li>
+                    <li id="logout-nav-link" style="display: none;">
+                        <a id="logout-link">Cerrar Sesión</a>
+                    </li>
+                    <li id="login-nav-link">
+                        <a id="login-register-link">Iniciar Sesión / Registrarse</a>
+                    </li>
+                    <li>
+                        <button id="theme-toggle" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div id="flash-messages" class="flash-messages"></div>
+        
+        <!-- Auth View (Login/Register) -->
+        <div id="auth-view" style="display: none;">
+            <div class="auth-container">
+                <div class="auth-box">
+                    <div class="auth-tabs">
+                        <button class="auth-tab-btn active" data-target="login-form">Iniciar Sesión</button>
+                        <button class="auth-tab-btn" data-target="register-form">Registrarse</button>
+                    </div>
+                    
+                    <!-- Login Form -->
+                    <div id="login-form" class="auth-form">
+                        <h1 class="auth-title">Iniciar Sesión</h1>
+                        <p class="auth-subtitle">¡Bienvenido de nuevo! Inicia sesión para continuar</p>
+                        
+                        <form id="login-form-element">
+                            <div class="form-group">
+                                <label for="login-username">Usuario</label>
+                                <input type="text" id="login-username" class="form-control" placeholder="Ingresa tu nombre de usuario" required>
+                                <div class="form-errors login-username-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="login-password">Contraseña</label>
+                                <input type="password" id="login-password" class="form-control" placeholder="Ingresa tu contraseña" required>
+                                <div class="form-errors login-password-error"></div>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="remember-me" class="form-check-input">
+                                <label for="remember-me" class="form-check-label">Recordarme</label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Register Form -->
+                    <div id="register-form" class="auth-form hidden">
+                        <h1 class="auth-title">Crear Cuenta</h1>
+                        <p class="auth-subtitle">Únete a Gemini Chat y comienza a conversar con IA</p>
+                        
+                        <form id="register-form-element">
+                            <div class="form-group">
+                                <label for="register-username">Usuario</label>
+                                <input type="text" id="register-username" class="form-control" placeholder="Elige un nombre de usuario" required>
+                                <div class="form-errors register-username-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-email">Email</label>
+                                <input type="email" id="register-email" class="form-control" placeholder="Ingresa tu email" required>
+                                <div class="form-errors register-email-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-password">Contraseña</label>
+                                <input type="password" id="register-password" class="form-control" placeholder="Crea una contraseña" required>
+                                <div class="form-errors register-password-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-password2">Confirmar Contraseña</label>
+                                <input type="password" id="register-password2" class="form-control" placeholder="Confirma tu contraseña" required>
+                                <div class="form-errors register-password2-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="auth-features">
+                    <h2>Características de Gemini Chat</h2>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h3>Conversaciones Inteligentes</h3>
+                                <p>Experimenta respuestas naturales y útiles con Google Gemini 2.5 Pro</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h3>Historial de Conversaciones</h3>
+                                <p>Guarda y revisa tus chats cuando quieras</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h3>Características Premium</h3>
+                                <p>Actualiza para obtener respuestas mejoradas y procesamiento prioritario</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin View -->
+        <div id="admin-view" style="display: none;">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h1>Panel de Administración</h1>
+                    <p>Gestionar usuarios y acceso premium</p>
+                </div>
+                
+                <div class="admin-content">
+                    <div class="admin-sidebar">
+                        <h2>Herramientas de Admin</h2>
+                        <ul class="admin-menu">
+                            <li class="active"><a href="#users">Gestión de Usuarios</a></li>
+                            <li><a id="back-to-chat">Volver al Chat</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="admin-main">
+                        <div class="admin-section" id="users">
+                            <h2>Gestión de Usuarios</h2>
+                            
+                            <div class="admin-form-container">
+                                <h3>Actualizar Estado de Usuario</h3>
+                                <form id="admin-form">
+                                    <div class="form-group">
+                                        <label for="admin-username">Usuario</label>
+                                        <input type="text" id="admin-username" class="form-control" placeholder="Ingresa el nombre de usuario" required>
+                                    </div>
+                                    
+                                    <div class="form-group checkbox-group">
+                                        <input type="checkbox" id="is-premium" class="form-check-input">
+                                        <label for="is-premium" class="form-check-label">Usuario Premium</label>
+                                    </div>
+                                    
+                                    <div class="form-group checkbox-group">
+                                        <input type="checkbox" id="is-admin" class="form-check-input">
+                                        <label for="is-admin" class="form-check-label">Usuario Administrador</label>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary">Actualizar Usuario</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div class="admin-table-container">
+                                <h3>Lista de Usuarios</h3>
+                                <table class="admin-table" id="users-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Usuario</th>
+                                            <th>Email</th>
+                                            <th>Premium</th>
+                                            <th>Admin</th>
+                                            <th>Creado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body">
+                                        <!-- User rows will be added here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat View -->
+        <div id="chat-view">
+            <div class="chat-container">
+                <!-- Sidebar with conversation history (only visible for logged in users) -->
+                <div class="sidebar" id="sidebar" style="display: none;">
+                    <div class="sidebar-header">
+                        <h2>Conversaciones</h2>
+                        <button id="new-chat-btn" class="new-chat-btn">
+                            <i class="fas fa-plus"></i> Nuevo Chat
+                        </button>
+                        <button id="sidebar-toggle" class="sidebar-toggle">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <div class="conversations-list" id="conversations-list">
+                        <!-- Conversations will be populated here -->
+                        <div class="no-conversations">
+                            <p>No hay conversaciones aún</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Premium features info -->
+                    <div class="premium-features-info">
+                        <div id="premium-info" style="display: none;">
+                            <div class="premium-badge">
+                                <i class="fas fa-crown"></i> Premium
+                            </div>
+                            <ul class="premium-features-list">
+                                <li><i class="fas fa-check"></i> Respuestas mejoradas</li>
+                                <li><i class="fas fa-check"></i> Procesamiento prioritario</li>
+                                <li><i class="fas fa-check"></i> Mayor ventana de contexto</li>
+                            </ul>
+                        </div>
+                        <div id="free-info">
+                            <div class="upgrade-prompt">
+                                <p><i class="fas fa-star"></i> ¡Actualiza a Premium para características mejoradas!</p>
+                                <button id="upgrade-premium-btn" class="btn btn-primary upgrade-btn">
+                                    <i class="fas fa-crown"></i> Actualizar a Premium
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección de suscripción pendiente (se muestra cuando hay una suscripción en proceso) -->
+                        <div id="pending-subscription-info" style="display: none;">
+                            <div class="pending-subscription">
+                                <div class="premium-badge pending">
+                                    <i class="fas fa-hourglass-half"></i> Pendiente
+                                </div>
+                                <p>Tu solicitud de actualización a Premium está pendiente de confirmación.</p>
+                                <div class="payment-details">
+                                    <h4>Detalles de pago:</h4>
+                                    <ul>
+                                        <li><strong>CBU:</strong> <span id="payment-cbu">0000003100005229414401</span> <button id="copy-cbu-btn" class="btn-icon"><i class="fas fa-copy"></i></button></li>
+                                        <li><strong>Monto:</strong> $<span id="payment-amount">2500</span> ARS</li>
+                                        <li><strong>Referencia:</strong> <span id="payment-reference"></span> <button id="copy-reference-btn" class="btn-icon"><i class="fas fa-copy"></i></button></li>
+                                    </ul>
+                                    <p class="payment-note">Importante: Incluye la referencia en el concepto de la transferencia para que podamos identificar tu pago.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main chat area -->
+                <div class="chat-main">
+                    <div id="welcome-view" class="welcome-section">
+                        <div class="welcome-content">
+                            <h1>Bienvenido a Gemini Chat</h1>
+                            <p>Experimenta el poder del modelo de IA Gemini 2.5 Pro de Google</p>
+                            <div class="welcome-buttons">
+                                <a id="welcome-login-btn" class="btn btn-primary">Iniciar Sesión / Registrarse</a>
+                            </div>
+                            <div class="welcome-features">
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <h3>IA Avanzada</h3>
+                                    <p>Impulsado por el modelo Gemini 2.5 Pro de Google</p>
+                                </div>
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <h3>Características Premium</h3>
+                                    <p>Respuestas mejoradas y configuraciones personalizadas</p>
+                                </div>
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <h3>Historial de Conversaciones</h3>
+                                    <p>Guarda y revisa tus conversaciones en cualquier momento</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="conversation-view" style="display: none;">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="empty-chat">
+                                <div class="empty-chat-content">
+                                    <i class="fas fa-comment-dots empty-chat-icon"></i>
+                                    <h2>Comienza una nueva conversación</h2>
+                                    <p>Escribe un mensaje abajo para empezar a chatear con Gemini AI</p>
+                                    
+                                    <div id="premium-tips" class="premium-tips" style="display: none;">
+                                        <h3><i class="fas fa-crown"></i> Consejos Premium</h3>
+                                        <ul>
+                                            <li>Haz preguntas complejas para análisis detallados</li>
+                                            <li>Prueba indicaciones de escritura creativa para salidas más largas</li>
+                                            <li>Disfruta de parámetros de modelo mejorados para mejor calidad</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="typing-indicator" class="typing-indicator hidden">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <form id="message-form" data-conversation-id="">
+                                <textarea id="message-input" placeholder="Escribe tu mensaje aquí..." rows="1"></textarea>
+                                <button type="submit" id="send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                            <div class="chat-input-footer">
+                                <p id="premium-status">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <span id="free-status-text">Modo gratuito: Actualiza a premium para características mejoradas</span>
+                                    <span id="premium-status-text" style="display: none;">Modo premium activado: Respuestas mejoradas con mayor ventana de contexto</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2023 Gemini Chat | Impulsado por Google Gemini 2.5 Pro</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Política de Privacidad</a>
+                <a href="#" class="footer-link">Términos de Servicio</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Estado de la aplicación
+        const appState = {
+            user: null, // Datos del usuario actual
+            conversations: [], // Lista de conversaciones
+            currentConversationId: null, // ID de la conversación actual
+            messages: [], // Mensajes de la conversación actual
+            darkMode: localStorage.getItem('theme') === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches,
+            apiUrl: window.location.origin, // URL base para las peticiones API
+            eventSource: null, // Fuente de eventos para streaming de respuestas
+        };
+
+        // Elementos DOM
+        const dom = {
+            // Vistas
+            authView: document.getElementById('auth-view'),
+            chatView: document.getElementById('chat-view'),
+            adminView: document.getElementById('admin-view'),
+            welcomeView: document.getElementById('welcome-view'),
+            conversationView: document.getElementById('conversation-view'),
+            
+            // Navegación
+            userNavSection: document.getElementById('user-nav-section'),
+            usernameDisplay: document.getElementById('username-display'),
+            premiumBadge: document.getElementById('premium-badge'),
+            adminNavLink: document.getElementById('admin-nav-link'),
+            logoutNavLink: document.getElementById('logout-nav-link'),
+            loginNavLink: document.getElementById('login-nav-link'),
+            
+            // Auth
+            loginForm: document.getElementById('login-form-element'),
+            registerForm: document.getElementById('register-form-element'),
+            authTabs: document.querySelectorAll('.auth-tab-btn'),
+            
+            // Chat
+            sidebar: document.getElementById('sidebar'),
+            conversationsList: document.getElementById('conversations-list'),
+            newChatBtn: document.getElementById('new-chat-btn'),
+            messageForm: document.getElementById('message-form'),
+            messageInput: document.getElementById('message-input'),
+            messagesContainer: document.getElementById('chat-messages'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            premiumInfo: document.getElementById('premium-info'),
+            freeInfo: document.getElementById('free-info'),
+            premiumTips: document.getElementById('premium-tips'),
+            premiumStatusText: document.getElementById('premium-status-text'),
+            freeStatusText: document.getElementById('free-status-text'),
+            
+            // Premium
+            upgradePremiumBtn: document.getElementById('upgrade-premium-btn'),
+            pendingSubscriptionInfo: document.getElementById('pending-subscription-info'),
+            paymentCbu: document.getElementById('payment-cbu'),
+            paymentAmount: document.getElementById('payment-amount'),
+            paymentReference: document.getElementById('payment-reference'),
+            copyCbuBtn: document.getElementById('copy-cbu-btn'),
+            copyReferenceBtn: document.getElementById('copy-reference-btn'),
+            
+            // Admin
+            adminForm: document.getElementById('admin-form'),
+            usersTableBody: document.getElementById('users-table-body'),
+            
+            // Otros
+            flashMessages: document.getElementById('flash-messages'),
+            themeToggle: document.getElementById('theme-toggle'),
+        };
+
+        // Enlaces de navegación
+        document.getElementById('home-link').addEventListener('click', navigateToHome);
+        document.getElementById('login-register-link').addEventListener('click', showAuthView);
+        document.getElementById('welcome-login-btn').addEventListener('click', showAuthView);
+        document.getElementById('logout-link').addEventListener('click', logout);
+        document.getElementById('admin-link').addEventListener('click', showAdminView);
+        document.getElementById('back-to-chat').addEventListener('click', showChatView);
+
+        // Pestañas de autenticación
+        dom.authTabs.forEach(button => {
+            button.addEventListener('click', function() {
+                // Quitar clase activa de todos los botones
+                dom.authTabs.forEach(btn => btn.classList.remove('active'));
+                // Añadir clase activa al botón clickeado
+                this.classList.add('active');
+                
+                // Ocultar todos los formularios
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+                
+                // Mostrar el formulario objetivo
+                const targetForm = document.getElementById(this.getAttribute('data-target'));
+                targetForm.classList.remove('hidden');
+            });
+        });
+
+        // Formularios de autenticación
+        dom.loginForm.addEventListener('submit', handleLogin);
+        dom.registerForm.addEventListener('submit', handleRegister);
+
+        // Chat
+        dom.newChatBtn.addEventListener('click', createNewConversation);
+        dom.messageForm.addEventListener('submit', sendMessage);
+        
+        // Redimensionar automáticamente el área de texto
+        dom.messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            
+            // Restablecer altura si está vacío
+            if (this.value === '') {
+                this.style.height = 'auto';
+            }
+        });
+        
+        // Admin
+        dom.adminForm.addEventListener('submit', updateUser);
+        
+        // Alternar tema
+        dom.themeToggle.addEventListener('click', toggleTheme);
+        
+        // Aplicar tema guardado
+        if (appState.darkMode) {
+            document.body.classList.add('dark-mode');
+            dom.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+
+        // Al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Comprobar si el usuario está autenticado
+            checkAuthentication();
+            
+            // Cerrar mensajes flash
+            setupFlashMessageClosers();
+        });
+
+        // Funciones de autenticación
+        function checkAuthentication() {
+            // Simulamos una comprobación de autenticación
+            // En una aplicación real, haríamos una solicitud al servidor
+            const storedUser = localStorage.getItem('user');
+            
+            if (storedUser) {
+                try {
+                    appState.user = JSON.parse(storedUser);
+                    updateUIForLoggedInUser();
+                    fetchConversations();
+                } catch (e) {
+                    console.error('Error parsing stored user:', e);
+                    localStorage.removeItem('user');
+                    showWelcomeView();
+                }
+            } else {
+                showWelcomeView();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const remember = document.getElementById('remember-me').checked;
+            
+            if (!username || !password) {
+                showFlashMessage('Por favor, completa todos los campos', 'danger');
+                return;
+            }
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                    remember
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Guardar el usuario en el almacenamiento local
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    appState.user = data.user;
+                    
+                    showFlashMessage(data.message, 'success');
+                    updateUIForLoggedInUser();
+                } else {
+                    showFlashMessage(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showFlashMessage('Error al iniciar sesión. Inténtalo de nuevo.', 'danger');
+            });
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const password2 = document.getElementById('register-password2').value;
+            
+            if (!username || !email || !password || !password2) {
+                showFlashMessage('Por favor, completa todos los campos', 'danger');
+                return;
+            }
+            
+            if (password !== password2) {
+                showFlashMessage('Las contraseñas no coinciden', 'danger');
+                return;
+            }
+            
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    email,
+                    password,
+                    password2
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showFlashMessage(data.message, 'success');
+                    
+                    // Cambiar a la pestaña de inicio de sesión
+                    dom.authTabs[0].click();
+                    
+                    // Limpiar el formulario
+                    document.getElementById('register-username').value = '';
+                    document.getElementById('register-email').value = '';
+                    document.getElementById('register-password').value = '';
+                    document.getElementById('register-password2').value = '';
+                } else {
+                    showFlashMessage(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showFlashMessage('Error al registrar. Inténtalo de nuevo.', 'danger');
+            });
+        }
+
+        function logout() {
+            // Hacer una solicitud al servidor para cerrar sesión
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Limpiar el estado de la aplicación
+                appState.user = null;
+                appState.conversations = [];
+                appState.currentConversationId = null;
+                appState.messages = [];
+                
+                // Limpiar el almacenamiento local
+                localStorage.removeItem('user');
+                
+                // Actualizar la UI
+                updateUIForLoggedOutUser();
+                showFlashMessage(data.message || 'Has cerrado sesión exitosamente', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Aún así, limpiar estado local
+                appState.user = null;
+                localStorage.removeItem('user');
+                updateUIForLoggedOutUser();
+                showFlashMessage('Has cerrado sesión exitosamente', 'success');
+            });
+        }
+
+        // Funciones de UI
+        function updateUIForLoggedInUser() {
+            // Mostrar/ocultar elementos de navegación
+            dom.userNavSection.style.display = 'block';
+            dom.usernameDisplay.textContent = appState.user.username;
+            dom.logoutNavLink.style.display = 'block';
+            dom.loginNavLink.style.display = 'none';
+            
+            // Mostrar/ocultar badge de premium
+            if (appState.user.is_premium) {
+                dom.premiumBadge.style.display = 'inline';
+                dom.premiumInfo.style.display = 'block';
+                dom.freeInfo.style.display = 'none';
+                dom.premiumTips.style.display = 'block';
+                dom.premiumStatusText.style.display = 'inline';
+                dom.freeStatusText.style.display = 'none';
+            } else {
+                dom.premiumBadge.style.display = 'none';
+                dom.premiumInfo.style.display = 'none';
+                dom.freeInfo.style.display = 'block';
+                dom.premiumTips.style.display = 'none';
+                dom.premiumStatusText.style.display = 'none';
+                dom.freeStatusText.style.display = 'inline';
+            }
+            
+            // Mostrar/ocultar enlace de administrador
+            if (appState.user.is_admin) {
+                dom.adminNavLink.style.display = 'block';
+            } else {
+                dom.adminNavLink.style.display = 'none';
+            }
+            
+            // Mostrar la vista de chat
+            showChatView();
+            dom.welcomeView.style.display = 'none';
+            dom.conversationView.style.display = 'block';
+            dom.sidebar.style.display = 'flex';
+        }
+
+        function updateUIForLoggedOutUser() {
+            // Mostrar/ocultar elementos de navegación
+            dom.userNavSection.style.display = 'none';
+            dom.logoutNavLink.style.display = 'none';
+            dom.loginNavLink.style.display = 'block';
+            dom.adminNavLink.style.display = 'none';
+            
+            // Mostrar la vista de bienvenida
+            showWelcomeView();
+        }
+
+        function navigateToHome() {
+            if (appState.user) {
+                showChatView();
+            } else {
+                showWelcomeView();
+            }
+        }
+
+        function showWelcomeView() {
+            dom.authView.style.display = 'none';
+            dom.chatView.style.display = 'block';
+            dom.adminView.style.display = 'none';
+            dom.welcomeView.style.display = 'flex';
+            dom.conversationView.style.display = 'none';
+            dom.sidebar.style.display = 'none';
+        }
+
+        function showAuthView() {
+            dom.authView.style.display = 'block';
+            dom.chatView.style.display = 'none';
+            dom.adminView.style.display = 'none';
+        }
+
+        function showChatView() {
+            dom.authView.style.display = 'none';
+            dom.chatView.style.display = 'block';
+            dom.adminView.style.display = 'none';
+            
+            if (appState.user) {
+                dom.welcomeView.style.display = 'none';
+                dom.conversationView.style.display = 'block';
+                dom.sidebar.style.display = 'flex';
+            } else {
+                dom.welcomeView.style.display = 'flex';
+                dom.conversationView.style.display = 'none';
+                dom.sidebar.style.display = 'none';
+            }
+        }
+
+        function showAdminView() {
+            if (!appState.user || !appState.user.is_admin) {
+                showFlashMessage('Acceso denegado. Se requieren derechos de administrador.', 'danger');
+                return;
+            }
+            
+            dom.authView.style.display = 'none';
+            dom.chatView.style.display = 'none';
+            dom.adminView.style.display = 'block';
+            
+            // Cargar la lista de usuarios
+            fetchUsers();
+        }
+
+        function showFlashMessage(message, category) {
+            const flashElement = document.createElement('div');
+            flashElement.classList.add('flash', category);
+            flashElement.innerHTML = `
+                ${message}
+                <button class="close-flash" aria-label="Close message"><i class="fas fa-times"></i></button>
+            `;
+            
+            dom.flashMessages.appendChild(flashElement);
+            
+            // Configurar el cierre del mensaje
+            const closeButton = flashElement.querySelector('.close-flash');
+            closeButton.addEventListener('click', function() {
+                flashElement.style.opacity = '0';
+                setTimeout(() => {
+                    flashElement.remove();
+                }, 300);
+            });
+            
+            // Auto-cerrar después de 5 segundos
+            setTimeout(() => {
+                if (flashElement.parentNode) {
+                    flashElement.style.opacity = '0';
+                    setTimeout(() => {
+                        if (flashElement.parentNode) {
+                            flashElement.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        function setupFlashMessageClosers() {
+            document.querySelectorAll('.close-flash').forEach(button => {
+                button.addEventListener('click', function() {
+                    const flashMessage = this.parentElement;
+                    flashMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        flashMessage.style.display = 'none';
+                    }, 300);
+                });
+            });
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            // Actualizar el icono del botón
+            dom.themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            
+            // Guardar la preferencia de tema
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            appState.darkMode = isDarkMode;
+        }
+
+        // Funciones de chat
+        function fetchConversations() {
+            // Simulamos una solicitud para obtener las conversaciones
+            // En una aplicación real, haríamos una solicitud GET al servidor
+            
+            // Simulamos un par de conversaciones
+            const dummyConversations = [
+                {
+                    id: 1,
+                    title: "Ayuda con programación",
+                    updated_at: new Date(Date.now() - 3600000).toISOString() // 1 hora atrás
+                },
+                {
+                    id: 2,
+                    title: "Información sobre IA",
+                    updated_at: new Date(Date.now() - 86400000).toISOString() // 1 día atrás
+                }
+            ];
+            
+            appState.conversations = dummyConversations;
+            renderConversations();
+        }
+
+        function renderConversations() {
+            if (appState.conversations.length === 0) {
+                dom.conversationsList.innerHTML = `
+                    <div class="no-conversations">
+                        <p>No hay conversaciones aún</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            dom.conversationsList.innerHTML = '';
+            
+            appState.conversations.forEach(conv => {
+                const date = new Date(conv.updated_at);
+                const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                const conversationElement = document.createElement('div');
+                conversationElement.classList.add('conversation-item');
+                if (appState.currentConversationId === conv.id) {
+                    conversationElement.classList.add('active');
+                }
+                conversationElement.setAttribute('data-id', conv.id);
+                
+                conversationElement.innerHTML = `
+                    <a href="#" class="conversation-link" data-id="${conv.id}">
+                        <i class="fas fa-comment-dots"></i>
+                        <span class="conversation-title">${conv.title}</span>
+                    </a>
+                    <button class="delete-conversation" data-id="${conv.id}" title="Eliminar conversación">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                
+                dom.conversationsList.appendChild(conversationElement);
+                
+                // Evento para cargar la conversación
+                conversationElement.querySelector('.conversation-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadConversation(conv.id);
+                });
+                
+                // Evento para eliminar la conversación
+                conversationElement.querySelector('.delete-conversation').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (confirm('¿Estás seguro de que quieres eliminar esta conversación?')) {
+                        deleteConversation(conv.id);
+                    }
+                });
+            });
+        }
+
+        function createNewConversation() {
+            // Simulamos la creación de una nueva conversación
+            // En una aplicación real, haríamos una solicitud POST al servidor
+            
+            const newConversation = {
+                id: Date.now(), // ID único basado en timestamp
+                title: "Nueva Conversación",
+                updated_at: new Date().toISOString()
+            };
+            
+            appState.conversations.unshift(newConversation);
+            renderConversations();
+            loadConversation(newConversation.id);
+        }
+
+        function loadConversation(conversationId) {
+            // Configurar la conversación actual
+            appState.currentConversationId = conversationId;
+            dom.messageForm.setAttribute('data-conversation-id', conversationId);
+            
+            // Actualizar UI para mostrar la conversación activa
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                if (parseInt(item.getAttribute('data-id')) === conversationId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Limpiar el contenedor de mensajes
+            dom.messagesContainer.innerHTML = '';
+            
+            // Simulamos la carga de mensajes
+            // En una aplicación real, haríamos una solicitud GET al servidor
+            
+            // Simulamos algunos mensajes para la conversación
+            if (conversationId === 1) {
+                appState.messages = [
+                    {
+                        id: 1,
+                        content: "¿Puedes ayudarme con un problema de JavaScript?",
+                        is_user: true,
+                        timestamp: new Date(Date.now() - 3600000) // 1 hora atrás
+                    },
+                    {
+                        id: 2,
+                        content: "¡Claro! Estaré encantado de ayudarte con JavaScript. Por favor, describe el problema que estás teniendo.",
+                        is_user: false,
+                        timestamp: new Date(Date.now() - 3590000) // 1 hora menos 10 segundos atrás
+                    }
+                ];
+            } else if (conversationId === 2) {
+                appState.messages = [
+                    {
+                        id: 3,
+                        content: "¿Qué es la inteligencia artificial generativa?",
+                        is_user: true,
+                        timestamp: new Date(Date.now() - 86400000) // 1 día atrás
+                    },
+                    {
+                        id: 4,
+                        content: "La inteligencia artificial generativa se refiere a sistemas de IA que pueden generar contenido nuevo, como texto, imágenes, música o código, en lugar de simplemente analizar o clasificar datos existentes.\n\nEjemplos populares incluyen:\n- Modelos de lenguaje como GPT (para texto)\n- DALL-E, Midjourney (para imágenes)\n- MuseNet (para música)\n\nEstos sistemas aprenden patrones de grandes conjuntos de datos y luego pueden crear contenido original que sigue esos patrones.",
+                        is_user: false,
+                        timestamp: new Date(Date.now() - 86395000) // 1 día menos 5 segundos atrás
+                    }
+                ];
+            } else {
+                appState.messages = [];
+            }
+            
+            // Renderizar los mensajes
+            renderMessages();
+        }
+
+        function renderMessages() {
+            if (appState.messages.length === 0) {
+                dom.messagesContainer.innerHTML = `
+                    <div class="empty-chat">
+                        <div class="empty-chat-content">
+                            <i class="fas fa-comment-dots empty-chat-icon"></i>
+                            <h2>Comienza una nueva conversación</h2>
+                            <p>Escribe un mensaje abajo para empezar a chatear con Gemini AI</p>
+                            
+                            ${appState.user && appState.user.is_premium ? `
+                            <div class="premium-tips">
+                                <h3><i class="fas fa-crown"></i> Consejos Premium</h3>
+                                <ul>
+                                    <li>Haz preguntas complejas para análisis detallados</li>
+                                    <li>Prueba indicaciones de escritura creativa para salidas más largas</li>
+                                    <li>Disfruta de parámetros de modelo mejorados para mejor calidad</li>
+                                </ul>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            dom.messagesContainer.innerHTML = '';
+            
+            appState.messages.forEach(message => {
+                appendMessage(message.content, message.is_user, message.timestamp);
+            });
+            
+            // Desplazarse al final de la conversación
+            scrollToBottom();
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            
+            const messageText = dom.messageInput.value.trim();
+            if (!messageText) return;
+            
+            const conversationId = dom.messageForm.getAttribute('data-conversation-id') || '';
+            
+            // Agregar mensaje del usuario a la UI inmediatamente
+            const userMessage = {
+                id: Date.now(),
+                content: messageText,
+                is_user: true,
+                timestamp: new Date()
+            };
+            
+            appState.messages.push(userMessage);
+            appendMessage(userMessage.content, true, userMessage.timestamp);
+            
+            // Limpiar el campo de entrada y restablecer altura
+            dom.messageInput.value = '';
+            dom.messageInput.style.height = 'auto';
+            
+            // Mostrar indicador de escritura
+            dom.typingIndicator.classList.remove('hidden');
+            
+            // Desplazarse al final
+            scrollToBottom();
+            
+            // Si es la primera mensaje en una nueva conversación, actualizar el título
+            if (conversationId && appState.conversations.find(c => c.id == conversationId)?.title === "Nueva Conversación") {
+                const conversation = appState.conversations.find(c => c.id == conversationId);
+                if (conversation) {
+                    conversation.title = messageText.length > 30 ? messageText.substring(0, 30) + "..." : messageText;
+                    renderConversations();
+                }
+            }
+            
+            // Si es una nueva conversación, crear una
+            if (!conversationId) {
+                const newConversation = {
+                    id: Date.now(),
+                    title: messageText.length > 30 ? messageText.substring(0, 30) + "..." : messageText,
+                    updated_at: new Date().toISOString()
+                };
+                
+                appState.conversations.unshift(newConversation);
+                appState.currentConversationId = newConversation.id;
+                dom.messageForm.setAttribute('data-conversation-id', newConversation.id);
+                renderConversations();
+            }
+            
+            // Simular respuesta de la IA después de un breve retraso
+            setTimeout(() => {
+                // Simular una respuesta de la IA
+                const aiResponse = getAIResponse(messageText);
+                const aiMessage = {
+                    id: Date.now() + 1,
+                    content: aiResponse,
+                    is_user: false,
+                    timestamp: new Date()
+                };
+                
+                // Ocultar indicador de escritura
+                dom.typingIndicator.classList.add('hidden');
+                
+                // Agregar mensaje de la IA a la UI
+                appState.messages.push(aiMessage);
+                appendMessage(aiMessage.content, false, aiMessage.timestamp);
+                
+                // Desplazarse al final
+                scrollToBottom();
+            }, 1500); // Retraso simulado de 1.5 segundos
+        }
+
+        function getAIResponse(userMessage) {
+            // Función para generar respuestas simuladas basadas en palabras clave en el mensaje del usuario
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('hola') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                return "¡Hola! Soy Gemini, un asistente de IA. ¿En qué puedo ayudarte hoy?";
+            }
+            
+            if (lowerMessage.includes('ayuda') || lowerMessage.includes('help')) {
+                return "Estoy aquí para ayudarte. Puedo responder preguntas, proporcionar información, ayudar con tareas creativas como escritura, y mucho más. ¿Qué necesitas específicamente?";
+            }
+            
+            if (lowerMessage.includes('gemini') || lowerMessage.includes('ai') || lowerMessage.includes('ia')) {
+                return "Gemini es un modelo de inteligencia artificial desarrollado por Google. Es un modelo multimodal que puede trabajar con texto, código, audio e imágenes. Esta versión específica, Gemini 2.5 Pro, es una de las iteraciones más avanzadas del modelo.";
+            }
+            
+            if (lowerMessage.includes('javascript') || lowerMessage.includes('js') || lowerMessage.includes('código')) {
+                return "JavaScript es un lenguaje de programación muy popular para desarrollo web. Aquí tienes un ejemplo básico:\n\n```javascript\n// Una función simple que suma dos números\nfunction sumar(a, b) {\n  return a + b;\n}\n\nconsole.log(sumar(5, 3)); // Muestra: 8\n```\n\n¿Necesitas ayuda con algo específico de JavaScript?";
+            }
+            
+            if (lowerMessage.includes('gracias') || lowerMessage.includes('thanks')) {
+                return "¡De nada! Estoy aquí para ayudar. Si tienes más preguntas en el futuro, no dudes en preguntar.";
+            }
+            
+            // Respuesta predeterminada
+            return "Gracias por tu mensaje. Como asistente de IA, estoy diseñado para proporcionar información útil y asistencia en una variedad de temas. ¿Hay algo específico en lo que pueda ayudarte?";
+        }
+
+        function appendMessage(text, isUser, timestamp = new Date()) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
+            
+            const timeString = timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            messageElement.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-text">${formatMessageText(text)}</div>
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            dom.messagesContainer.appendChild(messageElement);
+            
+            // Si el contenedor de mensajes contiene el elemento "empty-chat", eliminarlo
+            const emptyChat = dom.messagesContainer.querySelector('.empty-chat');
+            if (emptyChat) {
+                emptyChat.remove();
+            }
+        }
+
+        function formatMessageText(text) {
+            // Formatear bloques de código
+            text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+            
+            // Formatear negrita
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Formatear cursiva
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Formatear enlaces
+            text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+            
+            // Preservar saltos de línea
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
+        }
+
+        function scrollToBottom() {
+            if (dom.messagesContainer) {
+                dom.messagesContainer.scrollTop = dom.messagesContainer.scrollHeight;
+            }
+        }
+
+        function deleteConversation(conversationId) {
+            // Simulamos la eliminación de una conversación
+            // En una aplicación real, haríamos una solicitud DELETE al servidor
+            
+            appState.conversations = appState.conversations.filter(conv => conv.id != conversationId);
+            
+            if (appState.currentConversationId == conversationId) {
+                appState.currentConversationId = null;
+                appState.messages = [];
+                dom.messageForm.setAttribute('data-conversation-id', '');
+                
+                // Renderizar el estado vacío
+                dom.messagesContainer.innerHTML = `
+                    <div class="empty-chat">
+                        <div class="empty-chat-content">
+                            <i class="fas fa-comment-dots empty-chat-icon"></i>
+                            <h2>Comienza una nueva conversación</h2>
+                            <p>Escribe un mensaje abajo para empezar a chatear con Gemini AI</p>
+                            
+                            ${appState.user && appState.user.is_premium ? `
+                            <div class="premium-tips">
+                                <h3><i class="fas fa-crown"></i> Consejos Premium</h3>
+                                <ul>
+                                    <li>Haz preguntas complejas para análisis detallados</li>
+                                    <li>Prueba indicaciones de escritura creativa para salidas más largas</li>
+                                    <li>Disfruta de parámetros de modelo mejorados para mejor calidad</li>
+                                </ul>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderConversations();
+        }
+
+        // Funciones de administración
+        function fetchUsers() {
+            // Simulamos una solicitud para obtener la lista de usuarios
+            // En una aplicación real, haríamos una solicitud GET al servidor
+            
+            // Simulamos algunos usuarios
+            const dummyUsers = [
+                {
+                    id: 1,
+                    username: 'admin',
+                    email: 'admin@example.com',
+                    is_premium: true,
+                    is_admin: true,
+                    created_at: '2023-01-01T00:00:00Z'
+                },
+                {
+                    id: 2,
+                    username: 'usuario1',
+                    email: 'usuario1@example.com',
+                    is_premium: true,
+                    is_admin: false,
+                    created_at: '2023-01-15T00:00:00Z'
+                },
+                {
+                    id: 3,
+                    username: 'usuario2',
+                    email: 'usuario2@example.com',
+                    is_premium: false,
+                    is_admin: false,
+                    created_at: '2023-02-01T00:00:00Z'
+                }
+            ];
+            
+            renderUsers(dummyUsers);
+        }
+
+        function renderUsers(users) {
+            dom.usersTableBody.innerHTML = '';
+            
+            users.forEach(user => {
+                const date = new Date(user.created_at);
+                const dateString = date.toLocaleDateString();
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <span class="status-badge ${user.is_premium ? 'premium' : 'free'}">
+                            <i class="fas ${user.is_premium ? 'fa-check' : 'fa-times'}"></i>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${user.is_admin ? 'admin' : 'not-admin'}">
+                            <i class="fas ${user.is_admin ? 'fa-check' : 'fa-times'}"></i>
+                        </span>
+                    </td>
+                    <td>${dateString}</td>
+                `;
+                
+                dom.usersTableBody.appendChild(row);
+            });
+        }
+
+        function updateUser(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('admin-username').value.trim();
+            const isPremium = document.getElementById('is-premium').checked;
+            const isAdmin = document.getElementById('is-admin').checked;
+            
+            if (!username) {
+                showFlashMessage('Por favor, ingresa un nombre de usuario', 'danger');
+                return;
+            }
+            
+            // Simulamos la actualización de un usuario
+            // En una aplicación real, haríamos una solicitud PUT/PATCH al servidor
+            
+            // Simulamos encontrar un usuario (el usuario actual, para simplificar)
+            if (appState.user && username === appState.user.username) {
+                // Actualizar el usuario en el estado y almacenamiento local
+                appState.user.is_premium = isPremium;
+                appState.user.is_admin = isAdmin;
+                localStorage.setItem('user', JSON.stringify(appState.user));
+                
+                // Actualizar la UI
+                updateUIForLoggedInUser();
+                
+                showFlashMessage(`Usuario ${username} actualizado exitosamente`, 'success');
+                
+                // Recargar la lista de usuarios
+                fetchUsers();
+            } else {
+                showFlashMessage(`Usuario ${username} no encontrado`, 'danger');
+            }
+        }
+    </script>
+</body>
+</html>

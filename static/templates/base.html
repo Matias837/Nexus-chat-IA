@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gemini Chat{% endblock %}</title>
+    
+    <!-- Font: Inter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="light-mode">
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="var(--primary-color)" />
+                        <path d="M30 40L50 60L70 40" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M30 60L50 80L70 60" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Gemini Chat</span>
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    {% if current_user.is_authenticated %}
+                        <li>
+                            <span class="user-info">
+                                <i class="fas fa-user"></i> {{ current_user.username }}
+                                {% if current_user.is_premium %}
+                                    <span class="premium-badge" title="Premium User">
+                                        <i class="fas fa-crown"></i>
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        {% if current_user.is_admin %}
+                            <li><a href="{{ url_for('admin') }}">Admin</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">Iniciar Sesión / Registrarse</a></li>
+                    {% endif %}
+                    <li>
+                        <button id="theme-toggle" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">
+                            {{ message }}
+                            <button class="close-flash" aria-label="Close message"><i class="fas fa-times"></i></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2023 Gemini Chat | Powered by Google's Gemini 2.5 Pro</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gemini Chat{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-tabs">
+            <button class="auth-tab-btn {% if active_tab == 'login' %}active{% endif %}" data-target="login-form">Iniciar Sesión</button>
+            <button class="auth-tab-btn {% if active_tab == 'register' %}active{% endif %}" data-target="register-form">Registrarse</button>
+        </div>
+        
+        <!-- Login Form -->
+        <div id="login-form" class="auth-form {% if active_tab != 'login' %}hidden{% endif %}">
+            <h1 class="auth-title">Iniciar Sesión</h1>
+            <p class="auth-subtitle">¡Bienvenido de nuevo! Inicia sesión para continuar</p>
+            
+            <form method="POST" action="{{ url_for('login') }}">
+                {{ login_form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <label for="{{ login_form.username.id }}">Usuario</label>
+                    {{ login_form.username(class="form-control", placeholder="Ingresa tu nombre de usuario") }}
+                    {% if login_form.username.errors %}
+                        <div class="form-errors">
+                            {% for error in login_form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ login_form.password.id }}">Contraseña</label>
+                    {{ login_form.password(class="form-control", placeholder="Ingresa tu contraseña") }}
+                    {% if login_form.password.errors %}
+                        <div class="form-errors">
+                            {% for error in login_form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    {{ login_form.remember_me(class="form-check-input") }}
+                    <label for="{{ login_form.remember_me.id }}" class="form-check-label">Recordarme</label>
+                </div>
+                
+                <div class="form-group">
+                    {{ login_form.submit(class="btn btn-primary btn-block") }}
+                </div>
+            </form>
+        </div>
+        
+        <!-- Register Form -->
+        <div id="register-form" class="auth-form {% if active_tab != 'register' %}hidden{% endif %}">
+            <h1 class="auth-title">Crear Cuenta</h1>
+            <p class="auth-subtitle">Únete a Gemini Chat y comienza a conversar con IA</p>
+            
+            <form method="POST" action="{{ url_for('register') }}">
+                {{ register_form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <label for="{{ register_form.username.id }}">Usuario</label>
+                    {{ register_form.username(class="form-control", placeholder="Elige un nombre de usuario") }}
+                    {% if register_form.username.errors %}
+                        <div class="form-errors">
+                            {% for error in register_form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ register_form.email.id }}">Email</label>
+                    {{ register_form.email(class="form-control", placeholder="Ingresa tu email") }}
+                    {% if register_form.email.errors %}
+                        <div class="form-errors">
+                            {% for error in register_form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ register_form.password.id }}">Contraseña</label>
+                    {{ register_form.password(class="form-control", placeholder="Crea una contraseña") }}
+                    {% if register_form.password.errors %}
+                        <div class="form-errors">
+                            {% for error in register_form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ register_form.password2.id }}">Confirmar Contraseña</label>
+                    {{ register_form.password2(class="form-control", placeholder="Confirma tu contraseña") }}
+                    {% if register_form.password2.errors %}
+                        <div class="form-errors">
+                            {% for error in register_form.password2.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ register_form.submit(class="btn btn-primary btn-block") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="auth-features">
+        <h2>Características de Gemini Chat</h2>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <div class="feature-text">
+                    <h3>Conversaciones Inteligentes</h3>
+                    <p>Experimenta respuestas naturales y útiles con Google Gemini 2.5 Pro</p>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="feature-text">
+                    <h3>Historial de Conversaciones</h3>
+                    <p>Guarda y revisa tus chats cuando quieras</p>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="feature-text">
+                    <h3>Características Premium</h3>
+                    <p>Actualiza para obtener respuestas mejoradas y procesamiento prioritario</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching logic
+    const tabButtons = document.querySelectorAll('.auth-tab-btn');
+    const authForms = document.querySelectorAll('.auth-form');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Hide all forms
+            authForms.forEach(form => form.classList.add('hidden'));
+            
+            // Show the target form
+            const targetForm = document.getElementById(this.getAttribute('data-target'));
+            targetForm.classList.remove('hidden');
+            
+            // Update URL without reloading the page
+            const path = this.getAttribute('data-target').includes('login') ? 'login' : 'register';
+            window.history.pushState({}, '', `/${path}`);
+        });
+    });
+});
+</script>
+{% endblock %}

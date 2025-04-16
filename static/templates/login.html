@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Gemini Chat{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h1 class="auth-title">Login</h1>
+        <p class="auth-subtitle">Welcome back! Log in to continue</p>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id }}">Username</label>
+                {{ form.username(class="form-control", placeholder="Enter your username") }}
+                {% if form.username.errors %}
+                    <div class="form-errors">
+                        {% for error in form.username.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password.id }}">Password</label>
+                {{ form.password(class="form-control", placeholder="Enter your password") }}
+                {% if form.password.errors %}
+                    <div class="form-errors">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group checkbox-group">
+                {{ form.remember_me(class="form-check-input") }}
+                <label for="{{ form.remember_me.id }}" class="form-check-label">Remember me</label>
+            </div>
+            
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary btn-block") }}
+            </div>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Register now</a></p>
+        </div>
+    </div>
+    
+    <div class="auth-features">
+        <h2>Gemini Chat Features</h2>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <div class="feature-text">
+                    <h3>Intelligent Conversations</h3>
+                    <p>Experience natural, helpful responses powered by Google's Gemini 2.5 Pro</p>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="feature-text">
+                    <h3>Conversation History</h3>
+                    <p>Save and revisit your chats anytime you want</p>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="feature-text">
+                    <h3>Premium Features</h3>
+                    <p>Upgrade for enhanced responses, priority processing, and more</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
